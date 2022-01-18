@@ -1,7 +1,7 @@
 import { IListSettings } from "./IListSettings";
 import fetchListData from "./fetchListData";
 
-const targetTitle = crazyFunction();
+const targetTitle = "Hello world";
 
 const settings: IListSettings = {
     title: 'ContentTiles',
@@ -15,9 +15,24 @@ const settings: IListSettings = {
     path: '/',
 };
 
+export const main = async (): Promise<void> => {
+   try {
+      const data = await fetchListData(settings);
+      console.log(data);
+   }
+   catch(e) {
+      console.log(e);
+   }
+}
 
-const data = fetchListData(settings).then(data =>{
-    return data
-});
-
-console.log(data);
+function mainAsync() {
+   const data = fetchListData(settings)
+   .then(data => {
+      return data;
+   })
+   .catch(function(e) {
+      console.log(e);
+   });
+   
+   console.log(data);
+}
