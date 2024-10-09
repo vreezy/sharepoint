@@ -1,0 +1,54 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/column-formatting.schema.json",
+  "elmType": "div",
+  "style": {
+    "display": "=if(@currentField,'block','none')",
+    "max-width": "64px",
+    "max-height": "64px",
+    "overflow": "hidden",
+    "margin": "8px auto -3px -4px",
+    "cursor": "pointer"
+  },
+  "attributes": {
+    "title": "@currentField.fileName"
+  },
+  "children": [
+    {
+      "elmType": "img",
+      "style": {
+        "width": "100%",
+        "height": "100%"
+      },
+      "attributes": {
+        "src": "=getThumbnailImage(@currentField, 64, 64)"
+      },
+      "customCardProps": {
+        "formatter": {
+          "elmType": "div",
+          "style": {
+            "padding": "8px",
+            "background-color": "white"
+          },
+          "children": [
+            {
+              "elmType": "img",
+              "attributes": {
+                "src": "=getThumbnailImage(@currentField, 500, 500)",
+                "title": "@currentField.fileName"
+              },
+              "style": {
+                "background-color": "#e6e6e6"
+              }
+            }
+          ]
+        },
+        "openOnEvent": "click",
+        "directionalHint": "rightCenter",
+        "isBeakVisible": true,
+        "beakStyle": {
+          "backgroundColor": "white"
+        }
+      }
+    }
+  ]
+}
