@@ -1,0 +1,9 @@
+## Get the __metadata Type
+
+required for Power Platform 
+__metadata typey "SP.Data.ListNameItem"
+
+`https://[tenant].sharepoint.com/sites/[site]/_api/web/lists/GetByTitle('[List Or Library Title]')`
+
+look for:
+`<d:ListItemEntityTypeFullName>SP.Data.ListOrLibraryTitleItem</d:ListItemEntityTypeFullName>`
