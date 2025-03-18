@@ -3,8 +3,8 @@
 - Stolen from: <https://codepen.io/dzearing/pen/jGdgrE>
 
 ```
-console.log(
-  mergeStyleSets({
+
+  const styles = mergeStyleSets({
     root: 
       {
         userSelect: 'none',
@@ -24,6 +24,10 @@ console.log(
         }
       }   
   })
-);
-``` 
+
+```
+
+can be used as styles or className!
+
+
 
