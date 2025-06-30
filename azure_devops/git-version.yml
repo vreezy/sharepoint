@@ -1,0 +1,10 @@
+mode: ContinuousDeployment
+
+branches:
+  master:
+    regex: ^ma(ster|in)$
+  develop:
+    regex: ^dev(elop)?(ment)?$
+ignore:
+  sha: []
+merge-message-formats: {}
