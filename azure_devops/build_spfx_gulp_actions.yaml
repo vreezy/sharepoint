@@ -1,0 +1,121 @@
+trigger:
+  batch: "true"
+  branches:
+    include:
+      - "develop"
+      - "main"
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: {NAME}
+      ref: refs/heads/main
+      
+pool:
+  vmImage: windows-latest
+
+name: $(GITVERSION_FullSemVer)-$(Build.SourceBranchName)
+
+variables:
+  solution.version: "$(GitVersion.Major).$(GitVersion.Minor).$(GitVersion.Patch).$(REVISION)"
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
+steps:
+  # Run git-version
+  - template: AzureDevOps/run-gitversion.yml@templates
+    parameters:
+      gitVersionConfigFile: "$(Build.SourcesDirectory)/git-version.yml"
+
+  - task: PowerShell@2
+    displayName: Set pipeline variable "REVISION"
+    inputs:
+      targetType: "inline"
+      script: |
+        $revision=$(GitVersion.PreReleaseNumber);
+        if (-Not $revision) {
+          $revision = "0";
+        }
+
+        Write-Host "##vso[task.setvariable variable=REVISION;]$revision"
+
+  - bash: |
+      echo $(solution.version)
+    displayName: "Solution Version" 
+
+  # Update package-solution.json.
+  # It will use the variables definend above (line 19) 
+  # solution.version is the json path in package-solution.json.
+  - task: FileTransform@1
+    displayName: 'File transformation: package-solution.json'
+    inputs:
+      folderPath: '$(Build.SourcesDirectory)/config/'
+      targetFiles: '**/package-solution.json'
+      fileType: json
+  - task: NodeTool@0
+    displayName: "Use Node 14.x"
+    inputs:
+      versionSpec: 14.x
+      checkLatest: true
+
+# no cache
+  # - task: Npm@1
+  #   displayName: "npm install"
+  #   inputs:
+  #     verbose: false
+
+# use Cache instead of "npm install"
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)"
+      path: $(npm_config_cache)
+    displayName: Cache npm
+
+  - script: npm ci
+    displayName: "npm ci"
+
+# dependency-check requires .net 6.x core sdk or runtime
+  # - task: UseDotNet@2
+  #   displayName: "Install .net 6.x for dependency-check-build-task@6"
+  #   inputs:
+  #     packageType: 'sdk'
+  #     version: '6.x'
+
+  # - task: dependency-check-build-task@6
+  #   inputs:
+  #     projectName: 'webparts'
+  #     scanPath: '$(Build.SourcesDirectory)'
+  #     format: 'HTML, JSON, JUNIT'
+  #     additionalArguments: '--disableYarnAudit'
+
+  # - task: UseDotNet@2
+  #   displayName: "Install .net 2.1.x "
+  #   inputs:
+  #     packageType: 'sdk'
+  #     version: '2.1.x'
+
+  # - task: PublishTestResults@2
+  #   inputs:
+  #     testResultsFormat: 'JUnit'
+  #     testResultsFiles: 'dependency-check-junit.xml'
+  #     searchFolder: '$(Common.TestResultsDirectory)\dependency-check\'
+
+  - task: gulp@0
+    displayName: "gulp bundle"
+    inputs:
+      targets: bundle
+      arguments: "--ship"
+
+  - task: gulp@0
+    displayName: "gulp package-solution"
+    inputs:
+      targets: "package-solution"
+      arguments: "--ship"
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact: webPart.sppkg"
+    inputs:
+      pathToPublish: "$(Build.SourcesDirectory)/sharepoint/solution/webPart.sppkg"
+      artifactName: "package"
+      
