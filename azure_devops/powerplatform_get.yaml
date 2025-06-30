@@ -1,0 +1,88 @@
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: repo
+      ref: refs/heads/main
+
+pool:
+  vmImage: windows-latest
+
+trigger: none
+
+steps:
+# Run git-version
+- template: AzureDevOps/run-gitversion.yml@templates
+  parameters:
+    gitVersionConfigFile: "$(Build.SourcesDirectory)/git-version.yml"
+
+- powershell: |
+    $buildDate = Get-Date -Format "dd.MM.yyyy HH:mm:ss K";
+    Write-Host "##vso[task.setvariable variable=buildDate;]$buildDate";
+  displayName: 'Set variable buildDate.'
+
+- task: PowerPlatformToolInstaller@2
+  displayName: 'Power Platform Tool Installer'
+  inputs:
+    DefaultVersion: true
+
+- powershell: |
+    Remove-Item -Recurse -Force $(Build.SourcesDirectory)/src -ErrorAction SilentlyContinue
+  displayName: 'Clean up sources'
+
+- task: PowerPlatformPublishCustomizations@2
+  displayName: 'Power Platform Publish Customizations '
+  inputs:
+    authenticationType: 'PowerPlatformSPN'
+    PowerPlatformSPN: '$(PowerPlatformServiceConnectionName)'
+ 
+- task: PowerPlatformSetSolutionVersion@2
+  displayName: 'Power Platform Set Solution Version '
+  inputs:
+    authenticationType: 'PowerPlatformSPN'
+    PowerPlatformSPN: '$(PowerPlatformServiceConnectionName)'
+    SolutionName: '$(SolutionName)'
+    SolutionVersionNumber: '$(GitVersion.MajorMinorPatch).$(GitVersion.PreReleaseNumber)'
+
+- task: PowerPlatformExportSolution@2
+  displayName: 'Power Platform Export Solution (Managed)'
+  inputs:
+    authenticationType: 'PowerPlatformSPN'
+    PowerPlatformSPN: '$(PowerPlatformServiceConnectionName)'
+    SolutionName: '$(SolutionName)'
+    SolutionOutputFile: '$(Build.ArtifactStagingDirectory)/$(SolutionName)_managed.zip'
+    Managed: true    
+    AsyncOperation: true
+    MaxAsyncWaitTime: '60'    
+
+# - task: PowerPlatformUnpackSolution@2
+#   displayName: 'Power Platform Unpack Solution (Managed)'
+#   inputs:
+#     SolutionInputFile: '$(Build.ArtifactStagingDirectory)/$(SolutionName)_managed.zip'
+#     SolutionTargetFolder: '$(Build.SourcesDirectory)/src/Managed'
+#     SolutionType: Managed    
+
+- task: PowerPlatformExportSolution@2
+  displayName: 'Power Platform Export Solution (Unmanaged)'
+  inputs:
+    authenticationType: 'PowerPlatformSPN'
+    PowerPlatformSPN: '$(PowerPlatformServiceConnectionName)'
+    SolutionName: '$(SolutionName)'
+    SolutionOutputFile: '$(Build.ArtifactStagingDirectory)/$(SolutionName)_unmanaged.zip'
+    Managed: false    
+    AsyncOperation: true
+    MaxAsyncWaitTime: '60'    
+
+# - task: PowerPlatformUnpackSolution@2
+#   displayName: 'Power Platform Unpack Solution'
+#   inputs:
+#     SolutionInputFile: '$(Build.ArtifactStagingDirectory)/$(SolutionName)_unmanaged.zip'
+#     SolutionTargetFolder: '$(Build.SourcesDirectory)/src/Unmanaged'
+#     SolutionType: Unmanaged    
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Pipeline Artifact'
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: solutions
+    
