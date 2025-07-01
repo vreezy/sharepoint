@@ -1,0 +1,1 @@
+JSON.stringify(props.data, null, 2)
