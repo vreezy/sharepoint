@@ -15,3 +15,8 @@ _catalogs/lt/Forms/AllItems.aspx
 ## GetMyProperties
 
 /_api/SP.UserProfiles.PeopleManager/GetMyProperties
+
+
+# Sharepoint Online
+
+https://learn.microsoft.com/en-us/microsoft-365/community/query-string-url-tricks-sharepoint-m365#show-any-sharepoint-list-as-a-microsoft-lists-list
