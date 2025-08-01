@@ -1,0 +1,1 @@
+New-PnPAzureCertificate -OutPfx medienspiegel.pfx -OutCert medienspiegel.cer -ValidYears 1 -CertificatePassword (ConvertTo-SecureString -String "pass@word1" -AsPlainText -Force)
