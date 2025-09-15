@@ -15,9 +15,19 @@ export interface CustomWindow extends Window {
 
 declare let window: CustomWindow;
 
+// use sharepoint theme
 const ThemeColorsFromWindow = window.__themeState__.theme;
 export const siteTheme: ITheme = createTheme({
   palette: ThemeColorsFromWindow as Partial<IPalette>,
+});
+
+// use other global variables(.scss)
+export const globalStyles = getComputedStyle(document.body);
+
+export const ncTextFieldTheme: ITheme = createTheme({
+  palette: {
+    themePrimary: globalStyles.getPropertyValue("--color-Red"),
+  },
 });
 
 export const itemContainerStackStyles = {
