@@ -17,3 +17,8 @@ example data in a thumbnail column:
 
 this formatting shows a 64x64px thumbnail in 100% so the full image is visible, normally you don't see the full image
 additional you can click the thumbnail to see a bigger thumbnail.
+
+### date-up-to-seconds.json
+
+The Lists shows in the first days only yesterday or if you set it to date time you dont see the seconds.
+tis show the ull date and time with seconds
