@@ -25,3 +25,9 @@ alternate with replace:
 
 {{/if}}
 ```
+
+### Open in new tab
+
+<a href="{{slot item @root.slots.PreviewUrl}}" data-interception="off" target="_blank" rel="noopener noreferrer" style="color: {{@root.theme.semanticColors.link}}">
+	{{slot item @root.slots.Title}}
+</a>
