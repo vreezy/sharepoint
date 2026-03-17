@@ -1,0 +1,21 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/column-formatting.schema.json",
+  "elmType": "div",
+  "style": {
+    "display": "grid"
+  },
+  "children": [
+    {
+      "forEach": "choiceIterator in @currentField",
+      "elmType": "span",
+      "attributes": {
+        "class": "=if(startsWith([$choiceIterator], ' '), 'ms-bgColor-themePrimary ms-fontColor-white', '')"
+      },
+      "txtContent": "[$choiceIterator]",
+      "style": {
+        "margin": "1px",
+        "padding": "5px"
+      }
+    }
+  ]
+}
